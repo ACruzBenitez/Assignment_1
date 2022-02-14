@@ -15,7 +15,7 @@ public class Play : MonoBehaviour
     void Update()
     {
 if (Input.GetButtonDown("Jump")){
-			SceneManager.LoadScene("Level1");
+			SceneManager.LoadScene("Level");
 
              }        
     }

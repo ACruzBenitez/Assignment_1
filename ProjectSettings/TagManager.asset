@@ -8,6 +8,7 @@ TagManager:
   - Offscreen
   - Enemy
   - Item
+  - Obstacles
   layers:
   - Default
   - TransparentFX

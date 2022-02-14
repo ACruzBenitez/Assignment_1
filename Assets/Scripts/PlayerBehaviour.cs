@@ -16,8 +16,15 @@ public class PlayerBehaviour : MonoBehaviour
 
     [Header("Animation Properties")]
     public Animator animator;
-
     private Rigidbody2D rigidbody2D;
+
+    [Header("Canvas")]
+
+    public GameObject Canvas;
+    private bool canvasActive;
+
+    [Header("GameOver")]
+    private bool _gameOver = false;
 
     // Start is called before the first frame update
     void Start()
@@ -31,8 +38,20 @@ public class PlayerBehaviour : MonoBehaviour
     void FixedUpdate()
     {
         Move();
+        DisableCanvas();
+        animator.SetInteger("AnimationState", 1);
+
     }
 
+    void DisableCanvas() {
+        if(canvasActive && Input.GetButtonDown("Jump"))
+      Canvas.SetActive(false);
+    }
+    IEnumerator DelayRestart() {
+    yield return new WaitForSeconds(2.0f);
+    
+    SceneManager.LoadScene("Level");
+}
     private void Move()
     {
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, groundLayerMask);
@@ -45,7 +64,7 @@ public class PlayerBehaviour : MonoBehaviour
             //check if the player is moving
             if(jump == 0)
             {
-                animator.SetInteger("AnimationState", 0);
+                animator.SetInteger("AnimationState", 1);
             }
             if(jump > 0)
             {
@@ -54,27 +73,29 @@ public class PlayerBehaviour : MonoBehaviour
         
             Vector2 move = new Vector2( 0 , jump * verticalForce);
             rigidbody2D.AddForce(move);
-
-            
         }
+        if(_gameOver){
+            animator.SetInteger("AnimationState", 3);
+            Debug.Log("dead");
+        }
+
     }
+    
 
     //collisions
     void OnCollisionEnter2D(Collision2D col)
     {
-        if (col.gameObject.tag == "Enemy"){
-        
-		//	TakeDamage(5);
+        if (col.gameObject.tag == "Obstacles"){
+        StartCoroutine(DelayRestart());
+        _gameOver = true;
         }
+        
         //if (col.gameObject.tag == "Item"){
 
 		//	TakeDamage(-10);
         //}
-        if (col.gameObject.tag == "Offscreen"){
-
-			SceneManager.LoadScene("Level");
-        }
     }
+    
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.magenta;
