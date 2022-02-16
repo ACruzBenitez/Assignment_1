@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class PlayerBehaviour : MonoBehaviour
@@ -21,16 +23,34 @@ public class PlayerBehaviour : MonoBehaviour
     [Header("Canvas")]
 
     public GameObject Canvas;
-    private bool canvasActive;
+    public GameObject CanvasText;
+    public bool canvasActive;
+    public bool textActive;
+
+
+    [Header("Cameras")]
+    public CinemachineVirtualCamera player;
+    public CinemachineVirtualCamera zoom;
+
 
     [Header("GameOver")]
-    private bool _gameOver = false;
+    public bool _gameOver;
+
+    [Header("Abilities")]
+    public GameObject shield;
+    public GameObject scoretext;
+    public float score = 0;
+
+
 
     // Start is called before the first frame update
     void Start()
     {
         rigidbody2D = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        canvasActive = true;
+        textActive = false;
+        _gameOver = false;
      
     }
 
@@ -39,48 +59,50 @@ public class PlayerBehaviour : MonoBehaviour
     {
         Move();
         DisableCanvas();
-        animator.SetInteger("AnimationState", 1);
+        if(_gameOver){
+            animator.SetInteger("AnimationState", 3);
+        }
 
+        scoretext.GetComponent<Text>().text = score.ToString("F0"); 
     }
 
     void DisableCanvas() {
-        if(canvasActive && Input.GetButtonDown("Jump"))
+        if(canvasActive && Input.GetButtonDown("Submit"))
       Canvas.SetActive(false);
+      CanvasText.SetActive(true);
+
     }
     IEnumerator DelayRestart() {
     yield return new WaitForSeconds(2.0f);
     
     SceneManager.LoadScene("Level");
 }
+
     private void Move()
     {
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, groundLayerMask);
 
+        float jump = Input.GetAxisRaw("Jump");
+
 
         if (isGrounded)
         {
-            float jump = Input.GetAxisRaw("Jump");
 
             //check if the player is moving
             if(jump == 0)
             {
                 animator.SetInteger("AnimationState", 1);
             }
-            if(jump > 0)
-            {
-             animator.SetInteger("AnimationState", 2);
-            }
         
             Vector2 move = new Vector2( 0 , jump * verticalForce);
             rigidbody2D.AddForce(move);
         }
-        if(_gameOver){
-            animator.SetInteger("AnimationState", 3);
-            Debug.Log("dead");
-        }
-
+            if(jump > 0)
+            {
+             animator.SetInteger("AnimationState", 2);
+            }
+            
     }
-    
 
     //collisions
     void OnCollisionEnter2D(Collision2D col)
@@ -90,11 +112,28 @@ public class PlayerBehaviour : MonoBehaviour
         _gameOver = true;
         }
         
+        
         //if (col.gameObject.tag == "Item"){
 
 		//	TakeDamage(-10);
         //}
     }
+    void OnTriggerStay2D(Collider2D other)
+    {
+       if (other.gameObject.CompareTag("Zoom")){  
+        zoom.Priority = 1;
+        player.Priority = 0;
+        }
+        else{
+        zoom.Priority = 0;
+        player.Priority = 1;
+        } 
+        if (other.gameObject.CompareTag("Crown")){  
+        shield.SetActive(true);
+        score += 5;
+        }
+    }
+
     
     private void OnDrawGizmos()
     {

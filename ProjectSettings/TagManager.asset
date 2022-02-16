@@ -9,6 +9,11 @@ TagManager:
   - Enemy
   - Item
   - Obstacles
+  - Zoom
+  - Background
+  - DestroyObjects
+  - Shield
+  - Crown
   layers:
   - Default
   - TransparentFX
