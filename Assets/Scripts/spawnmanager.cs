@@ -21,7 +21,7 @@ public class spawnmanager : MonoBehaviour
     //Update is called once per frame
     void SpawnObstacle()
     {
-        if(!_playerBehaviour._gameOver)
+        if(!_playerBehaviour._gameOver && !_playerBehaviour.canvasActive)
         {
         GameObject obstaclePrefab = obstaclePrefabs[Random.Range(0, obstaclePrefabs.Length)];
         Instantiate(obstaclePrefab, spawnPos, obstaclePrefab.transform.rotation);

@@ -40,7 +40,10 @@ public class PlayerBehaviour : MonoBehaviour
     public GameObject shield;
     public GameObject scoretext;
     public float score = 0;
-
+     
+    [Header("Sound")]
+    public AudioClip jumpSound, collisionSound, coinSound;
+    private AudioSource _audioSource;
 
 
     // Start is called before the first frame update
@@ -48,6 +51,7 @@ public class PlayerBehaviour : MonoBehaviour
     {
         rigidbody2D = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        _audioSource = GetComponent<AudioSource>();
         canvasActive = true;
         textActive = false;
         _gameOver = false;
@@ -67,10 +71,11 @@ public class PlayerBehaviour : MonoBehaviour
     }
 
     void DisableCanvas() {
-        if(canvasActive && Input.GetButtonDown("Submit"))
-      Canvas.SetActive(false);
-      CanvasText.SetActive(true);
-
+        if(canvasActive && Input.GetButtonDown("Submit")){
+        Canvas.SetActive(false);
+        canvasActive = false;
+        CanvasText.SetActive(true);
+        }
     }
     IEnumerator DelayRestart() {
     yield return new WaitForSeconds(2.0f);
@@ -100,6 +105,7 @@ public class PlayerBehaviour : MonoBehaviour
             if(jump > 0)
             {
              animator.SetInteger("AnimationState", 2);
+            _audioSource.PlayOneShot(jumpSound);
             }
             
     }
@@ -110,6 +116,7 @@ public class PlayerBehaviour : MonoBehaviour
         if (col.gameObject.tag == "Obstacles"){
         StartCoroutine(DelayRestart());
         _gameOver = true;
+            _audioSource.PlayOneShot(collisionSound);
         }
         
         
@@ -131,6 +138,7 @@ public class PlayerBehaviour : MonoBehaviour
         if (other.gameObject.CompareTag("Crown")){  
         shield.SetActive(true);
         score += 5;
+            _audioSource.PlayOneShot(coinSound);
         }
     }
 
